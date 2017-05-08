@@ -8,7 +8,7 @@
              http://www.springframework.org/schema/beans/spring-beans.xsd">
              <!--xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/task http://www.springframework.org/schema/beans/spring-beans.xsd">-->
 
-    <beans:bean id="batchLauncher" class="io.userhabit.kongsuny.BatchLauncher" abstract="true"/>
+    <beans:bean id="batchLauncher" class="io.userhabit.kongsuny.common.BatchLauncher" abstract="true"/>
 
     <beans:bean id="playstoreLauncher" parent="batchLauncher" p:jobName="playstoreJob"/>
 

@@ -1,4 +1,4 @@
-package io.userhabit.kongsuny;
+package io.userhabit.kongsuny.common;
 
 import io.userhabit.kongsuny.job.playstore.JobCompletionListener;
 import io.userhabit.kongsuny.job.playstore.Processor;

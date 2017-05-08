@@ -1,4 +1,4 @@
-package io.userhabit.kongsuny;
+package io.userhabit.kongsuny.common;
 
 import org.springframework.batch.core.*;
 import org.springframework.batch.core.launch.JobLauncher;
