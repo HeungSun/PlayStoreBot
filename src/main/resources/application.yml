@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    name: datasource
+    initialize: false
+    url: jdbc:mysql://localhost/appinfo
+    driver-class-name: com.mysql.jdbc.Driver
+    username: test
+    password: test
+  jpa:
+    generate-ddl: false
+    show-sql: true
