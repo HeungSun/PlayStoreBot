@@ -20,5 +20,6 @@ public class JobCompletionListener extends JobExecutionListenerSupport {
     @Override
     public void beforeJob(JobExecution jobExecution) {
         super.beforeJob(jobExecution);
+        System.out.println("BEFORE JOB hello");
     }
 }
