@@ -4,10 +4,12 @@ import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.NonTransientResourceException;
 import org.springframework.batch.item.ParseException;
 import org.springframework.batch.item.UnexpectedInputException;
+import org.springframework.stereotype.Component;
 
 /**
  * Created by kongsuny on 2017. 5. 8..
  */
+@Component
 public class Reader implements ItemReader<String> {
 
     private String[] message = { "sample"};
