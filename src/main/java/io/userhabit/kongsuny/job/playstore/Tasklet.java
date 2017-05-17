@@ -7,13 +7,11 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
-import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
-import org.apache.http.util.TextUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -23,15 +21,13 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.stereotype.Component;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-240개 부터는 처음 부터 다시 불러온다
-1.왜 다시 불러올까
-2.이제 모어 로딩이 끝날때 타이밍을 알아내기
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Created by HeungSun-AndBut on 2017. 5. 10..
@@ -40,26 +36,31 @@ import java.util.List;
 public class Tasklet implements org.springframework.batch.core.step.tasklet.Tasklet {
 
     private static final String SITE_URL = "https://play.google.com/store";
-//    private String[] mSiteList = {"https://play.google.com/store/apps/collection/recommended_for_you_POPULAR_APPS_GAMES?clp=ygICEAQ%3D:S:ANO1ljJTyak"};
-private String[] mSiteList = {"https://play.google.com/store/apps/category/GAME/collection/topselling_paid"};
 
-    private String LOAD_CONTENT_NUM  = "60";
-    List<PlayStoreSiteModel> sites = new ArrayList<>();
+    //순서 대로 : 인기 유료 , 최고 매출 , 인기 앱, 신규 인기 앱
+    private String[] mSiteList = {"https://play.google.com/store/apps/collection/topselling_paid"};//, "https://play.google.com/store/apps/collection/topgrossing",
+//            "https://play.google.com/store/apps/collection/topselling_free", "https://play.google.com/store/apps/collection/topselling_new_free"};
 
+    private String LOAD_CONTENT_NUM = "60";
+    Map<String, PlayStoreSiteModel> sites = new HashMap<>();
     private int mCurrentContent = 0;
+
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
 
+        System.out.println("registed site search start : " + mSiteList.length);
         try {
             for (int i = 0; i < mSiteList.length; i++) {
 
                 String site = mSiteList[i];
 
+                System.out.println("search start site : " + site);
+
                 //TODO 끝인지 어떻게 알수있을까? 임시로 아래와 같이 적용 후에 수정
-                int addContent = -1;
-                while(addContent != 0) {
+                boolean duplicated = false;
+                while (!duplicated) {
                     HttpPost httpPost = new HttpPost(site);
 
                     List<NameValuePair> postParams = new ArrayList<NameValuePair>();
@@ -70,7 +71,6 @@ private String[] mSiteList = {"https://play.google.com/store/apps/category/GAME/
                     postParams.add(new BasicNameValuePair("ipf", "1"));
                     postParams.add(new BasicNameValuePair("xhr", "1"));
                     postParams.add(new BasicNameValuePair("token", "66r4OI_TKfX-3naObfXIYbT0ljQ:1494425852938"));
-
 
                     httpPost.setEntity(new UrlEncodedFormEntity(postParams));
 
@@ -91,19 +91,25 @@ private String[] mSiteList = {"https://play.google.com/store/apps/category/GAME/
 
                     Thread.sleep(5000);
                     String responseBody = httpclient.execute(httpPost, responseHandler);
-                    addContent = getAppUrlFromBody(site, responseBody);
+                    duplicated = getAppUrlFromBody(site, responseBody);
 
-                    mCurrentContent += addContent;
+                    mCurrentContent += Integer.valueOf(LOAD_CONTENT_NUM);
+
                 }
             }
         } catch (Exception e) {
 
         }
 
-        return null;
+        System.out.println("final check app count : " + sites.size());
+
+        List<PlayStoreSiteModel> realSites = new ArrayList<>(sites.values());
+        chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext().put("DETAIL_URL_DATA", realSites);
+
+        return RepeatStatus.FINISHED;
     }
 
-    private int getAppUrlFromBody(String category, String body) {
+    private boolean getAppUrlFromBody(String category, String body) {
 
         Document doc = Jsoup.parse(body);
 
@@ -116,14 +122,17 @@ private String[] mSiteList = {"https://play.google.com/store/apps/category/GAME/
         for (int j = 0; j < links.size(); j++) {
             Element link = links.get(j);
             url = link.attr("href");
-            System.out.println("url :" + url);
-            if (!TextUtils.isEmpty(url)) {
-                sites.add(new PlayStoreSiteModel(category, url));
+            if (sites.containsKey(url) && category.equals(sites.get(url).getCategory())) {
+                //Already check the page
+                return true;
             }
+            sites.put(url, new PlayStoreSiteModel(category, url));
+
+            System.out.println("add url :" + url);
         }
 
         System.out.println(category + " : result size :" + sites.size());
 
-        return sites.size();
+        return false;
     }
 }

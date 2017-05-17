@@ -1,6 +1,8 @@
 package io.userhabit.kongsuny;
 
 import io.userhabit.kongsuny.job.playstore.*;
+import io.userhabit.kongsuny.model.AppInfoModel;
+import io.userhabit.kongsuny.model.PlayStoreSiteModel;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.Step;
@@ -57,8 +59,8 @@ public class Config {
     }
 
     @Bean
-    Step detailPageJob() {
-        return stepBuilderFactory.get(PLAY_STORE_STEP_DETAIL_PAGE_JOB).<String, String>chunk(10)
+    public Step detailPageJob() {
+        return stepBuilderFactory.get(PLAY_STORE_STEP_DETAIL_PAGE_JOB).<PlayStoreSiteModel, AppInfoModel>chunk(10)
                 .reader(playstoreReader)
                 .processor(playstoreProcessor)
                 .writer(playstoreWriter)
