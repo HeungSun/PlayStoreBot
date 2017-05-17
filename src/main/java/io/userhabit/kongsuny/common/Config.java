@@ -1,4 +1,4 @@
-package io.userhabit.kongsuny;
+package io.userhabit.kongsuny.common;
 
 import io.userhabit.kongsuny.job.playstore.*;
 import io.userhabit.kongsuny.model.AppInfoModel;
