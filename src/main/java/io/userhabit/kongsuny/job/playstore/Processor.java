@@ -15,6 +15,7 @@ import org.apache.http.util.EntityUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,7 @@ import java.util.List;
 /**
  * Created by kongsuny on 2017. 5. 8..
  */
+@StepScope
 @Component
 public class Processor implements ItemProcessor<PlayStoreSiteModel, AppInfoModel> {
 
@@ -121,7 +123,15 @@ public class Processor implements ItemProcessor<PlayStoreSiteModel, AppInfoModel
             }
         }
 
-        appInfoModel = new AppInfoModel(imageStr, titleStr, genreStr, updateDate, companyStr, downloads, currentVersion, operationVersion);
+        appInfoModel = new AppInfoModel();
+        appInfoModel.setImageUrl(imageStr);
+        appInfoModel.setTitle(titleStr);
+        appInfoModel.setGenre(genreStr);
+        appInfoModel.setUpdateDate(updateDate);
+        appInfoModel.setCompany(companyStr);
+        appInfoModel.setDownLoads(downloads);
+        appInfoModel.setCurrentVersion(currentVersion);
+        appInfoModel.setOperationVersion(operationVersion);
 
         return appInfoModel;
     }

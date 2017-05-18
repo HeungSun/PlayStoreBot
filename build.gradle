@@ -26,10 +26,17 @@ dependencies {
 	compile('org.springframework.boot:spring-boot-starter-batch')
 	compile('org.springframework.boot:spring-boot-starter')
 	compile('org.springframework.boot:spring-boot-starter-jdbc')
+	compile("org.springframework.boot:spring-boot-starter-data-jpa")
 	compile('org.apache.commons:commons-dbcp2:2.1.1')
 	compile('org.apache.httpcomponents:httpclient:4.5.1')
 	compile('org.jsoup:jsoup:1.10.2')
-	compile('org.hibernate:hibernate-core:4.3.11.Final')
+
 	compile('mysql:mysql-connector-java:5.1.38')
+	compile ('org.apache.poi:poi:3.14')
+	compile("org.hibernate:hibernate-core:5.2.10.Final")
+	compile("org.hibernate:hibernate-search-orm:5.2.10.Final")
+	compile("org.hibernate:hibernate-entitymanager:5.2.10.Final")
+	compile group: 'org.jboss', name: 'jandex', version: '2.0.0.Final'
+
 	testCompile('org.springframework.boot:spring-boot-starter-test')
 }
