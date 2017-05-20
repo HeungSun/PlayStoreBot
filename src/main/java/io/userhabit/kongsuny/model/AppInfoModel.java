@@ -1,6 +1,9 @@
 package io.userhabit.kongsuny.model;
 
+import org.hibernate.annotations.Type;
+
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -9,7 +12,9 @@ import java.util.Date;
 
 @Entity
 @Table(name = "AppInfoList")
-public class AppInfoModel {
+public class AppInfoModel implements Serializable {
+
+    private static final long serialVersionUID = 123L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -32,7 +37,7 @@ public class AppInfoModel {
     @Column(name = "operationVersion")
     private String operationVersion; //앱 최소 버전
     @Column(name = "appInfoUpdateDate")
-    private Date appInfoUpdateDate; //앱 최소 버전
+    private String appInfoUpdateDate; //등록 시간
 
 
     public String getImageUrl() {
@@ -107,11 +112,11 @@ public class AppInfoModel {
         this.company = company;
     }
 
-    public Date getAppInfoUpdateDate() {
+    public String getAppInfoUpdateDate() {
         return appInfoUpdateDate;
     }
 
-    public void setAppInfoUpdateDate(Date appInfoUpdateDate) {
+    public void setAppInfoUpdateDate(String appInfoUpdateDate) {
         this.appInfoUpdateDate = appInfoUpdateDate;
     }
 }

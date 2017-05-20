@@ -2,7 +2,7 @@ spring:
   datasource:
     name: datasource
     initialize: false
-    url: jdbc:mysql://localhost/appinfo
+    url: jdbc:mysql://localhost/appinfo?useUnicode=true&amp;characterEncoding=utf8mb4
     driver-class-name: com.mysql.jdbc.Driver
     username: test
     password: test
@@ -14,8 +14,7 @@ spring:
       max-wait-millis: 10000
     tomcat:
       max-active: 2
-  jpa:
-    database: MYSQL
-    showSql: false
-    properties.hibernate.dialect: org.hibernate.dialect.MySQL5InnoDBDialect
-    properties.hibernate.hbm2ddl.auto: create
+spring.jpa.hibernate.ddl-auto: update
+
+
+
