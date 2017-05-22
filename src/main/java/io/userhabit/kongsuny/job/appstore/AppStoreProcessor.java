@@ -1,6 +1,7 @@
 package io.userhabit.kongsuny.job.appstore;
 
 import io.userhabit.kongsuny.model.AppInfoModel;
+import io.userhabit.kongsuny.model.AppStoreJsonModel;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -13,12 +14,13 @@ import org.springframework.stereotype.Component;
  */
 @StepScope
 @Component
-public class AppStoreProcessor implements ItemProcessor<String, AppInfoModel> {
+public class AppStoreProcessor implements ItemProcessor<AppStoreJsonModel, AppInfoModel> {
 
     @Override
-    public AppInfoModel process(String json) throws Exception {
+    public AppInfoModel process(AppStoreJsonModel appStoreJson) throws Exception {
 
         AppInfoModel appInfoModel = null;
+        String json = appStoreJson.getJson();
 
         String updateDate = "";
         String downloads = "자료없음";
@@ -53,7 +55,7 @@ public class AppStoreProcessor implements ItemProcessor<String, AppInfoModel> {
         appInfoModel.setDownLoads(downloads);
         appInfoModel.setCurrentVersion(currentVersion);
         appInfoModel.setOperationVersion(operationVersion);
-
+        appInfoModel.setUniqueId(appStoreJson.getBndleId());
         return appInfoModel;
     }
 

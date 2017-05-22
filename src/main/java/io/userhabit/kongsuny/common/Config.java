@@ -6,7 +6,8 @@ import io.userhabit.kongsuny.job.appstore.AppStoreReader;
 import io.userhabit.kongsuny.job.appstore.AppStoreTasklet;
 import io.userhabit.kongsuny.job.playstore.*;
 import io.userhabit.kongsuny.model.AppInfoModel;
-import io.userhabit.kongsuny.model.PlayStoreSiteModel;
+import io.userhabit.kongsuny.model.AppStoreJsonModel;
+import io.userhabit.kongsuny.model.PlayStoreBaseModel;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecutionListener;
 import org.springframework.batch.core.Step;
@@ -25,6 +26,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableBatchProcessing
 public class Config {
+
+    public static final String PARENT_DIR = "excel";
+    public static final String EXCEL_FILE_NAME = "_appinfo.xls";
 
     public static final String PLAY_STORE_JOB = "playStoreJob";
     private static final String PLAY_STORE_STEP_LIST_PAGE_JOB = "playStoreListJob";
@@ -72,7 +76,7 @@ public class Config {
     }
 
     public Step appStoreDetailPageJob() {
-        return stepBuilderFactory.get(APP_STORE_STEP_DETAIL_PAGE_JOB).<String, AppInfoModel>chunk(10)
+        return stepBuilderFactory.get(APP_STORE_STEP_DETAIL_PAGE_JOB).<AppStoreJsonModel, AppInfoModel>chunk(10)
                 .reader(appStoreReader)
                 .processor(appStoreProcessor)
                 .writer(playStoreWriter)
@@ -96,7 +100,7 @@ public class Config {
     }
 
     public Step playStoreDetailPageJob() {
-        return stepBuilderFactory.get(PLAY_STORE_STEP_DETAIL_PAGE_JOB).<PlayStoreSiteModel, AppInfoModel>chunk(10)
+        return stepBuilderFactory.get(PLAY_STORE_STEP_DETAIL_PAGE_JOB).<PlayStoreBaseModel, AppInfoModel>chunk(10)
                 .reader(playStoreReader)
                 .processor(playStoreProcessor)
                 .writer(playStoreWriter)

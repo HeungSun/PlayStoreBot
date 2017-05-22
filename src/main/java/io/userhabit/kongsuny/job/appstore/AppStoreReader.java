@@ -1,5 +1,6 @@
 package io.userhabit.kongsuny.job.appstore;
 
+import io.userhabit.kongsuny.model.AppStoreJsonModel;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,19 +15,19 @@ import java.util.List;
  */
 @StepScope
 @Component
-public class AppStoreReader extends AbstractItemCountingItemStreamItemReader<String> {
+public class AppStoreReader extends AbstractItemCountingItemStreamItemReader<AppStoreJsonModel> {
 
     @Value("#{jobExecutionContext['DETAIL_JSON_DATA']}")
-    private List<String> detailJsons;
+    private List<AppStoreJsonModel> detailJsons;
 
     public AppStoreReader() {
         super.setName(ClassUtils.getShortName(AppStoreReader.class));
     }
 
     @Override
-    protected String doRead() throws Exception {
+    protected AppStoreJsonModel doRead() throws Exception {
         int count = super.getCurrentItemCount() - 1;
-        String site = detailJsons.get(count);
+        AppStoreJsonModel site = detailJsons.get(count);
         return site;
     }
 

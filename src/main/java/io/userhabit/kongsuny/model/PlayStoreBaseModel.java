@@ -5,24 +5,24 @@ import java.io.Serializable;
 /**
  * Created by kongsuny on 2017. 5. 10..
  */
-public class PlayStoreSiteModel implements Serializable {
+public class PlayStoreBaseModel implements Serializable {
     private static final long serialVersionUID = 123L;
 
-    private String mUrl;
+    private String mPackage;
     private String mCategory;
 
-    public PlayStoreSiteModel(String mCategory, String mUrl) {
+    public PlayStoreBaseModel(String mCategory, String mPackage) {
         this.mCategory = mCategory;
-        this.mUrl = mUrl;
+        this.mPackage = mPackage;
     }
 
 
-    public String getUrl() {
-        return mUrl;
+    public String getPackage() {
+        return mPackage;
     }
 
-    public void setUrl(String mUrl) {
-        this.mUrl = mUrl;
+    public void setPackage(String mPackage) {
+        this.mPackage = mPackage;
     }
 
     public String getCategory() {

@@ -1,6 +1,6 @@
 package io.userhabit.kongsuny.job.playstore;
 
-import io.userhabit.kongsuny.model.PlayStoreSiteModel;
+import io.userhabit.kongsuny.model.PlayStoreBaseModel;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -35,14 +35,14 @@ import java.util.Map;
 @Component
 public class PlayStoreTasklet implements org.springframework.batch.core.step.tasklet.Tasklet {
 
-    private static final String SITE_URL = "https://play.google.com/store";
+    private static final String REMOVE_URL = "/store/apps/details?id=";
 
     //순서 대로 : 인기 유료 , 최고 매출 , 인기 앱, 신규 인기 앱
     private String[] mSiteList = {"https://play.google.com/store/apps/collection/topselling_paid", "https://play.google.com/store/apps/collection/topgrossing",
             "https://play.google.com/store/apps/collection/topselling_free", "https://play.google.com/store/apps/collection/topselling_new_free"};
 
     private String LOAD_CONTENT_NUM = "60";
-    Map<String, PlayStoreSiteModel> sites = new HashMap<>();
+    Map<String, PlayStoreBaseModel> sites = new HashMap<>();
     private int mCurrentContent = 0;
 
     @Override
@@ -54,7 +54,7 @@ public class PlayStoreTasklet implements org.springframework.batch.core.step.tas
             for (int i = 0; i < mSiteList.length; i++) {
 
                 String site = mSiteList[i];
-
+                mCurrentContent = 0;
                 //TODO 끝인지 어떻게 알수있을까? 임시로 아래와 같이 적용 후에 수정
                 boolean duplicated = false;
                 while (!duplicated) {
@@ -91,6 +91,8 @@ public class PlayStoreTasklet implements org.springframework.batch.core.step.tas
 
                     mCurrentContent += Integer.valueOf(LOAD_CONTENT_NUM);
 
+                    Thread.sleep(1000);
+
                 }
             }
         } catch (Exception e) {
@@ -98,7 +100,7 @@ public class PlayStoreTasklet implements org.springframework.batch.core.step.tas
         }
 
         System.out.println("final check playstore count : " + sites.size());
-        List<PlayStoreSiteModel> realSites = new ArrayList<>(sites.values());
+        List<PlayStoreBaseModel> realSites = new ArrayList<>(sites.values());
         chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext().put("DETAIL_URL_DATA", realSites);
 
         return RepeatStatus.FINISHED;
@@ -113,13 +115,15 @@ public class PlayStoreTasklet implements org.springframework.batch.core.step.tas
 
         for (int j = 0; j < links.size(); j++) {
             Element link = links.get(j);
-            url = link.attr("href");
-            if (sites.containsKey(url) && category.equals(sites.get(url).getCategory())) {
-                //Already check the page
-                return true;
-            }
+            url = link.attr("href").replace(REMOVE_URL, "");
+            if(sites.containsKey(url)) {
+                if(category.equals(sites.get(url).getCategory())) {
+                    return true;
+                }
+            } else {
+                sites.put(url, new PlayStoreBaseModel(category, url));
 
-            sites.put(url, new PlayStoreSiteModel(category, url));
+            }
         }
 
         return false;

@@ -1,6 +1,6 @@
 package io.userhabit.kongsuny.job.playstore;
 
-import io.userhabit.kongsuny.model.PlayStoreSiteModel;
+import io.userhabit.kongsuny.model.PlayStoreBaseModel;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.item.support.AbstractItemCountingItemStreamItemReader;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,19 +14,19 @@ import java.util.List;
  */
 @StepScope
 @Component
-public class PlayStoreReader extends AbstractItemCountingItemStreamItemReader<PlayStoreSiteModel> {
+public class PlayStoreReader extends AbstractItemCountingItemStreamItemReader<PlayStoreBaseModel> {
 
     @Value("#{jobExecutionContext['DETAIL_URL_DATA']}")
-    private List<PlayStoreSiteModel> detailUrls;
+    private List<PlayStoreBaseModel> detailUrls;
 
     public PlayStoreReader() {
         super.setName(ClassUtils.getShortName(PlayStoreReader.class));
     }
 
     @Override
-    protected PlayStoreSiteModel doRead() throws Exception {
+    protected PlayStoreBaseModel doRead() throws Exception {
         int count = super.getCurrentItemCount() - 1;
-        PlayStoreSiteModel item = detailUrls.get(count);
+        PlayStoreBaseModel item = detailUrls.get(count);
         return item;
     }
 

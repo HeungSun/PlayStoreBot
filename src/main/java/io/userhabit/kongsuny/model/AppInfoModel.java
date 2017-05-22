@@ -36,9 +36,18 @@ public class AppInfoModel implements Serializable {
     private String currentVersion; //앱 현재 버전
     @Column(name = "operationVersion")
     private String operationVersion; //앱 최소 버전
+    @Column(name = "uniqueId") //도메인 이름
+    private String uniqueId;
     @Column(name = "appInfoUpdateDate")
     private String appInfoUpdateDate; //등록 시간
 
+    public String getUniqueId() {
+        return uniqueId;
+    }
+
+    public void setUniqueId(String uniqueId) {
+        this.uniqueId = uniqueId;
+    }
 
     public String getImageUrl() {
         return imageUrl;

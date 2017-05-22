@@ -1,7 +1,7 @@
 package io.userhabit.kongsuny.job.playstore;
 
 import io.userhabit.kongsuny.model.AppInfoModel;
-import io.userhabit.kongsuny.model.PlayStoreSiteModel;
+import io.userhabit.kongsuny.model.PlayStoreBaseModel;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -28,9 +28,9 @@ import java.util.List;
  */
 @StepScope
 @Component
-public class PlayStoreProcessor implements ItemProcessor<PlayStoreSiteModel, AppInfoModel> {
+public class PlayStoreProcessor implements ItemProcessor<PlayStoreBaseModel, AppInfoModel> {
 
-    private static final String BASE_APP_INFO_DETAIL_PAGE_ADDRESS = "https://play.google.com";
+    private static final String BASE_APP_INFO_DETAIL_PAGE_ADDRESS = "https://play.google.com/store/apps/details?id=";
 
     //css itemprop string value
     //업데이트 날짜
@@ -43,14 +43,14 @@ public class PlayStoreProcessor implements ItemProcessor<PlayStoreSiteModel, App
     private static final String OPERATION_VERSION = "operatingSystems";
 
     @Override
-    public AppInfoModel process(PlayStoreSiteModel item) throws Exception {
+    public AppInfoModel process(PlayStoreBaseModel item) throws Exception {
 
         AppInfoModel appInfo = null;
 
         CloseableHttpClient httpclient = HttpClients.createDefault();
 
         try {
-            HttpPost httpPost = new HttpPost(BASE_APP_INFO_DETAIL_PAGE_ADDRESS + item.getUrl());
+            HttpPost httpPost = new HttpPost(BASE_APP_INFO_DETAIL_PAGE_ADDRESS + item.getPackage());
 
             List<NameValuePair> postParams = new ArrayList<>();
             httpPost.setEntity(new UrlEncodedFormEntity(postParams));
@@ -72,7 +72,7 @@ public class PlayStoreProcessor implements ItemProcessor<PlayStoreSiteModel, App
 
             String responseBody = httpclient.execute(httpPost, responseHandler);
             //item category : 플레이스토어에서 얻은 원청 사이트 - 유료앱 순위
-            appInfo = getDetailAppInfoFromBody(responseBody);
+            appInfo = getDetailAppInfoFromBody(item.getPackage(), responseBody);
 
         } catch (Exception e) {
             System.out.println("playstore processor error : " + e.getMessage());
@@ -80,7 +80,7 @@ public class PlayStoreProcessor implements ItemProcessor<PlayStoreSiteModel, App
         return appInfo;
     }
 
-    private AppInfoModel getDetailAppInfoFromBody(String body) {
+    private AppInfoModel getDetailAppInfoFromBody(String pacakge, String body) {
 
         AppInfoModel appInfoModel = null;
         Document doc = Jsoup.parse(body);
@@ -128,7 +128,7 @@ public class PlayStoreProcessor implements ItemProcessor<PlayStoreSiteModel, App
         appInfoModel.setDownLoads(downloads);
         appInfoModel.setCurrentVersion(currentVersion);
         appInfoModel.setOperationVersion(operationVersion);
-
+        appInfoModel.setUniqueId(pacakge);
         return appInfoModel;
     }
 }

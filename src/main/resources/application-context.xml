@@ -10,9 +10,11 @@
 
     <beans:bean id="batchLauncher" class="io.userhabit.kongsuny.common.BatchLauncher" abstract="true"/>
 
-    <beans:bean id="playstoreLauncher" parent="batchLauncher" p:jobName="playstoreJob"/>
+    <beans:bean id="playstoreLauncher" parent="batchLauncher" p:jobName="playStoreJob"/>
 
     <task:scheduled-tasks>
         <task:scheduled ref="playstoreLauncher" method="run" cron="0 0 1 * * *"/>
+        <!--<task:scheduled ref="playstoreLauncher" method="run" cron="*/10 * * * * *"/>-->
+        <!--<task:scheduled ref="playstoreLauncher" method="run" cron="0 5 * * * *"/>-->
     </task:scheduled-tasks>
 </beans:beans>

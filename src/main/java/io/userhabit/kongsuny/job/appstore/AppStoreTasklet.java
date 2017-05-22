@@ -1,10 +1,7 @@
 package io.userhabit.kongsuny.job.appstore;
 
-import io.userhabit.kongsuny.ExcelGenerater;
-import io.userhabit.kongsuny.database.AppInfoDao;
-import io.userhabit.kongsuny.database.AppInfoDaoImpl;
-import io.userhabit.kongsuny.model.AppInfoModel;
-import io.userhabit.kongsuny.model.PlayStoreSiteModel;
+import io.userhabit.kongsuny.model.AppStoreJsonModel;
+import io.userhabit.kongsuny.model.PlayStoreBaseModel;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
@@ -14,20 +11,14 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -47,7 +38,7 @@ public class AppStoreTasklet implements org.springframework.batch.core.step.task
     private String mBaseUrl = "https://itunes.apple.com/kr/rss/%s/limit=100/genre=60%02d/json";
     private String[] mCategory = {"newfreeapplications", "newpaidapplications", "topfreeapplications", "topgrossingapplications", "toppaidapplications"};
     private int mGenreMaxNum = 24;
-    Map<String, String> items = new HashMap<>();
+    Map<String, AppStoreJsonModel> sites = new HashMap<>();
 
 
     @Override
@@ -81,7 +72,7 @@ public class AppStoreTasklet implements org.springframework.batch.core.step.task
                     String responseBody = httpclient.execute(httpPost, responseHandler);
                     getAppUrlFromBody(responseBody);
 
-                    System.out.println(url + " | item count: " + items.size());
+                    System.out.println(url + " | item count: " + sites.size());
                 }
 
             }
@@ -90,8 +81,8 @@ public class AppStoreTasklet implements org.springframework.batch.core.step.task
             System.out.println("appStore taklet error : " + e.getMessage());
         }
 
-        System.out.println("final check appstore count : " + items.size());
-        List<String> appJson = new ArrayList<>(items.values());
+        System.out.println("final check appstore count : " + sites.size());
+        List<AppStoreJsonModel> appJson = new ArrayList<>(sites.values());
         chunkContext.getStepContext().getStepExecution().getJobExecution().getExecutionContext().put("DETAIL_JSON_DATA", appJson);
 
         return RepeatStatus.FINISHED;
@@ -108,8 +99,8 @@ public class AppStoreTasklet implements org.springframework.batch.core.step.task
                 JSONObject id = (JSONObject) ((JSONObject) appList.get(i)).get("id");
                 JSONObject attributes = (JSONObject) id.get("attributes");
                 String bundle = attributes.get("im:bundleId").toString();
-                if (!items.containsKey(bundle)) {
-                    items.put(bundle, appList.get(i).toString());
+                if (!sites.containsKey(bundle)) {
+                    sites.put(bundle, new AppStoreJsonModel(bundle, appList.get(i).toString()));
                 }
             }
         } catch (Exception e) {
